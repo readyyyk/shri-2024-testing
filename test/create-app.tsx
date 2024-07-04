@@ -6,7 +6,6 @@ import { MemoryRouter, Route } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Application } from "../src/client/Application";
 import { BASE_NAME } from "./unit/config";
-import { INVALID_ROUTE_TEXT } from "./shared-config";
 
 type CreateAppOptions = {
   api?: ExampleApi;
