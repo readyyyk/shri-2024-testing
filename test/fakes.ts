@@ -1,6 +1,7 @@
-import { ExampleApi } from "../src/client/api";
+import { CartApi, ExampleApi } from "../src/client/api";
 import { AxiosHeaders, type AxiosResponse } from "axios";
 import {
+  CartItem,
   CartState,
   CheckoutFormData,
   CheckoutResponse,
@@ -8,7 +9,7 @@ import {
   ProductShortInfo,
 } from "../src/common/types";
 
-function axiosResponse<T>(data: T, status?: number): AxiosResponse<T> {
+export function axiosResponse<T>(data: T, status?: number): AxiosResponse<T> {
   return {
     config: {
       headers: new AxiosHeaders({}),
@@ -20,7 +21,7 @@ function axiosResponse<T>(data: T, status?: number): AxiosResponse<T> {
   };
 }
 
-function productTOshort(product: Product): ProductShortInfo {
+export function productTOshort(product: Product): ProductShortInfo {
   return {
     id: product.id,
     name: product.name,
@@ -28,10 +29,10 @@ function productTOshort(product: Product): ProductShortInfo {
   };
 }
 
-class FakeApi extends ExampleApi {
+export class FakeApi extends ExampleApi {
   products: Record<Product["id"], Product> = {};
 
-  setProducts(products: Product[]) {
+  setProducts(products: readonly Product[]) {
     this.products = products.reduce(
       (acc, product) => {
         acc[product.id] = product;
@@ -62,3 +63,51 @@ class FakeApi extends ExampleApi {
     );
   }
 }
+
+/*
+class FakeCart extends CartApi {
+  state: CartState;
+
+  addItem(item: Product) {
+    this.state[item.id] = {
+      name: item.name,
+      price: item.price,
+      count: this.state[item.id]?.count + 1 ?? 0,
+    };
+  }
+  setState(cart: CartState) {
+    this.state = cart;
+  }
+  getState(): CartState {
+    return this.state;
+  }
+}
+*/
+
+export const fakeLocalStorage: Storage = {
+  store: {},
+
+  get length() {
+    return Object.keys(this.store).length;
+  },
+
+  get key() {
+    return (n: number) => Object.keys(this.store)[n];
+  },
+
+  clear() {
+    this.store = {};
+  },
+
+  getItem(key: string) {
+    return this.store[key] || null;
+  },
+
+  setItem(key: string, value: unknown) {
+    this.store[key] = String(value);
+  },
+
+  removeItem(key: string) {
+    delete this.store[key];
+  },
+};
