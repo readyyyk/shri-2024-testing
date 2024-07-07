@@ -1,4 +1,3 @@
-import { ProductShortInfo } from "../../src/common/types";
 import { basename, baseUrl } from "./config";
 import { PAGES } from "../shared-config";
 

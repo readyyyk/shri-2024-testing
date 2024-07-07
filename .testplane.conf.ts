@@ -5,7 +5,7 @@ process.env = Object.assign(process.env, {
 export default {
   sets: {
     desktop: {
-      files: "test/testplane",
+      files: ["test/integrity/**", "test/e2e/**"],
     },
   },
 

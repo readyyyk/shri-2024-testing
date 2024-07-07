@@ -8,6 +8,7 @@ import {
   Product,
   ProductShortInfo,
 } from "../src/common/types";
+import { FAKE_STATIC_RANDOM } from './shared-config';
 
 export function axiosResponse<T>(data: T, status?: number): AxiosResponse<T> {
   return {
@@ -58,7 +59,7 @@ export class FakeApi extends ExampleApi {
   ): Promise<AxiosResponse<CheckoutResponse>> {
     return Promise.resolve(
       axiosResponse({
-        id: 1,
+        id: FAKE_STATIC_RANDOM,
       }),
     );
   }

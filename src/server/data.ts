@@ -38,7 +38,6 @@ export class ExampleStore {
   getAllProducts(bugId: number): ProductShortInfo[] {
     const products = this.products.map(getShortInfo);
 
-    console.log(bugId);
     if (bugId === 1) {
       products.forEach((p) => {
         p.name = undefined;

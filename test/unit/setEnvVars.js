@@ -1,1 +1,1 @@
-process.env.BUG_ID = "8";
+process.env.BUG_ID = "";

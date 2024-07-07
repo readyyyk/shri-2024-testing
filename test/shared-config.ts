@@ -4,3 +4,5 @@ export const PAGES = {
   "условия доставки": "/delivery",
   контакты: "/contacts",
 };
+
+export const FAKE_STATIC_RANDOM = 116_101_115_116; // test in ascii
