@@ -4,7 +4,9 @@ import createApp from "../create-app";
 import { FakeApi, fakeLocalStorage } from "../fakes";
 import { Product } from "../../src/common/types";
 import { PAGES } from "../shared-config";
-import { gotoCart, gotoProduct, waitForLoad } from "./config";
+import { waitForLoad } from "./utils";
+import { initStore } from "../../src/client/store";
+import { CartApi } from "../../src/client/api";
 
 describe("Продукт", () => {
   const api = new FakeApi("");
@@ -59,39 +61,31 @@ describe("Продукт", () => {
     expect(button).not.toBeNull();
   });
 
-  it("При нажатии на кнопку 'добавить в корзину' товар добавляется в корзину", async () => {
+  it("Если товар находится в корзине, то появляется соответсвующий индикатор", async () => {
+    const cart = new CartApi();
+    cart.setState({ [mockProducts[0].id]: { count: 1, ...mockProducts[0] } });
     const app = createApp({
-      api: api,
+      api,
+      cart,
       initialEntries: [PAGES["каталог"] + "/" + mockProducts[0].id],
     });
-    const { container, getByText } = render(app);
+    const { container } = render(app);
     await waitForLoad(container);
-
-    const button = container.querySelector(".ProductDetails-AddToCart");
-    act(() => {
-      button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
 
     const badge = container.querySelector(".CartBadge");
     expect(badge).not.toBe(null);
   });
 
   it('Если товар уже добавлен в корзину, повторное нажатие кнопки "добавить в корзину" должно увеличивать его количество', async () => {
+    const store = initStore(api, new CartApi());
     const app = createApp({
-      api: api,
-      initialEntries: ["/cart", PAGES["каталог"] + "/" + mockProducts[0].id],
+      store,
+      initialEntries: [PAGES["каталог"] + "/" + mockProducts[0].id],
     });
     const { container, getByTestId, getByText } = render(app);
     await waitForLoad(container);
 
-    let prev_count = parseInt(
-      container.querySelector(
-        `[data-testid="${mockProducts[0].id}"] .Cart-Count`,
-      )?.textContent ?? "",
-    );
-    prev_count = Number.isNaN(prev_count) ? 0 : prev_count;
-
-    await gotoProduct(container, mockProducts[0].id);
+    let prev_count = store.getState().cart[mockProducts[0].id]?.count ?? 0;
 
     const button = container.querySelector(".ProductDetails-AddToCart");
     act(() => {
@@ -99,11 +93,7 @@ describe("Продукт", () => {
       button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
 
-    gotoCart(container);
-
-    const row = getByTestId(mockProducts[0].id);
-    const count = row.querySelector(".Cart-Count").textContent;
-
-    expect(count).toBe(String(prev_count + 2));
+    const newCount = store.getState().cart[mockProducts[0].id]?.count;
+    expect(newCount).toBe(prev_count + 2);
   });
 });

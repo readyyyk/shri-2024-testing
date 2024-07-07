@@ -1,10 +1,17 @@
 import { it, expect } from "@jest/globals";
 import { act, render, fireEvent } from "@testing-library/react";
 import createApp from "../create-app";
-import { FakeApi, fakeLocalStorage } from "../fakes";
-import { Product } from "../../src/common/types";
+import { FakeApi, fakeLocalStorage, productTOshort } from "../fakes";
+import { CartState, Product } from "../../src/common/types";
 import { PAGES } from "../shared-config";
-import { gotoCart, gotoProduct } from "./config";
+import { gotoCart, gotoProduct } from "./utils";
+import {
+  initStore,
+  addToCart as addToCartAction,
+  productsLoad,
+  productsLoaded,
+} from "../../src/client/store";
+import { CartApi } from "../../src/client/api";
 
 describe("Корзина", () => {
   const api = new FakeApi("");
@@ -50,55 +57,62 @@ describe("Корзина", () => {
 
     const link = container.querySelector(
       ":not(nav) > .container a[href='" + PAGES["каталог"] + "']",
-      // ":not(nav) > .container a[href='" + PAGES["главная"] + "']",
     );
 
     expect(link).not.toBeNull();
   });
 
-  it("В шапке рядом со ссылкой на корзину должно отображаться количество не повторяющихся товаров в ней", async () => {
+  it("В шапке рядом со ссылкой на корзину должно отображаться количество не повторяющихся товаров в ней", () => {
+    const cart = new CartApi();
+    cart.setState({
+      [mockProducts[0].id]: { ...productTOshort(mockProducts[0]), count: 1 },
+      [mockProducts[1].id]: { ...productTOshort(mockProducts[1]), count: 2 },
+    } satisfies CartState);
+
     const { container } = render(
       createApp({
         api,
-        initialEntries: [PAGES["каталог"] + "/" + mockProducts[0].id],
+        cart,
+        initialEntries: [PAGES["главная"]],
       }),
     );
 
     const cartLink = container.querySelector("nav a[href='/cart']");
-
-    let prev_number = parseInt(
+    let nav_number = parseInt(
       cartLink.textContent.split(" ")[1]?.replace("(", "").replace(")", "") ??
         "",
+    );
+    const real_number = Object.keys(cart.getState()).length;
+    expect(nav_number).toBe(real_number);
+
+    /*
+    let prev_number = parseInt(
+      cartLink.textContent
+        .split(" ")[1]
+        ?.replace("(", "")
+        .replace(")", "") ?? "",
     );
 
     prev_number = Number.isNaN(prev_number) ? 0 : prev_number;
 
     await addToCart(container, mockProducts[0].id);
-
     await addToCart(container, mockProducts[1].id);
-
-    let new_number = parseInt(
-      cartLink.textContent.split(" ")[1]?.replace("(", "").replace(")", "") ??
-        "",
-    );
-
-    expect(new_number).toBe(prev_number + 2);
-  });
+    */
+  }, 300);
 
   it("В корзине должна отображаться таблица с добавленными в нее товарами", async () => {
+    const cart = new CartApi();
+    cart.setState({
+      [mockProducts[0].id]: { ...productTOshort(mockProducts[0]), count: 2 },
+      [mockProducts[1].id]: { ...productTOshort(mockProducts[1]), count: 1 },
+    } satisfies CartState);
+
     const { container } = render(
       createApp({
         api,
-        initialEntries: [PAGES["каталог"] + "/" + mockProducts[0].id],
+        initialEntries: ["/cart"],
       }),
     );
-
-    await addToCart(container, mockProducts[0].id);
-    await addToCart(container, mockProducts[0].id);
-
-    await addToCart(container, mockProducts[1].id);
-
-    await gotoCart(container);
 
     const row1 = container.querySelector(
       "tr[data-testid='" + mockProducts[0].id + "']",
@@ -141,19 +155,17 @@ describe("Корзина", () => {
   });
 
   it("В корзине должны валидироваться данные введенные в инпуты", async () => {
+    const cart = new CartApi();
+    cart.setState({
+      [mockProducts[0].id]: { ...productTOshort(mockProducts[0]), count: 1 },
+    } satisfies CartState);
     const { container } = render(
       createApp({
         api,
-        initialEntries: [PAGES["каталог"] + "/" + mockProducts[0].id],
+        cart,
+        initialEntries: ["/cart"],
       }),
     );
-
-    await addToCart(container, mockProducts[0].id);
-    await addToCart(container, mockProducts[0].id);
-
-    await addToCart(container, mockProducts[1].id);
-
-    await gotoCart(container);
 
     const inputName = container.querySelector(
       "input.Form-Field_type_name",

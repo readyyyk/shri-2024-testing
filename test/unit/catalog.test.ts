@@ -4,7 +4,8 @@ import createApp from "../create-app";
 import { FakeApi, fakeLocalStorage } from "../fakes";
 import { Product } from "../../src/common/types";
 import { PAGES } from "../shared-config";
-import { gotoCatalog, LOADING_TEXT, waitForLoad } from "./config";
+import { gotoCatalog, waitForLoad } from "./utils";
+import { CartApi } from "../../src/client/api";
 
 describe("Каталог", () => {
   const api = new FakeApi("");
@@ -72,20 +73,17 @@ describe("Каталог", () => {
   });
 
   it("При добавлении товара в корзину появляется соответсвующий индикатор на странице каталога", async () => {
+    const cart = new CartApi();
+    cart.setState({
+      [mockProducts[0].id]: { ...mockProducts[0], count: 1 },
+    });
     const app = createApp({
       api,
-      initialEntries: [PAGES["каталог"] + "/" + mockProducts[0].id],
+      cart,
+      initialEntries: [PAGES["каталог"]],
     });
     const { container, getByText } = render(app);
     await waitForLoad(container);
-
-    // add to cart
-    const button = container.querySelector(".ProductDetails-AddToCart");
-    act(() => {
-      button.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-
-    await gotoCatalog(container);
 
     // get cards
     const card1 = container.querySelector(

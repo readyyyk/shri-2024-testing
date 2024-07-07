@@ -5,19 +5,31 @@ import { initStore } from "../src/client/store";
 import { MemoryRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Application } from "../src/client/Application";
-import { BASE_NAME } from "./unit/config";
+import { BASE_NAME } from "./unit/utils";
 
-type CreateAppOptions = {
-  api?: ExampleApi;
-  cart?: CartApi;
-  initialEntries?: string[];
-  initialIndex?: number;
-};
+type CreateAppOptions =
+  | {
+      api?: ExampleApi;
+      cart?: CartApi;
+      initialEntries?: string[];
+      initialIndex?: number;
+    }
+  | {
+      store: ReturnType<typeof initStore>;
+      initialEntries?: string[];
+      initialIndex?: number;
+    };
 function createApp(args?: CreateAppOptions) {
-  const { api, cart, initialEntries, initialIndex } = args ?? {};
-  const _api = api ?? new ExampleApi(BASE_NAME);
-  const _cart = cart ?? new CartApi();
-  const store = initStore(_api, _cart);
+  let store: ReturnType<typeof initStore>;
+  const { initialEntries, initialIndex } = args ?? {};
+
+  if (typeof args !== "undefined" && "store" in args) {
+    store = args.store;
+  } else {
+    const _api = args?.api ?? new ExampleApi(BASE_NAME);
+    const _cart = args?.cart ?? new CartApi();
+    store = initStore(_api, _cart);
+  }
 
   const app = (
     <MemoryRouter

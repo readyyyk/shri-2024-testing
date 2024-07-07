@@ -5675,7 +5675,6 @@ snapshots:
       loglevel: 1.9.1
       loglevel-plugin-prefix: 0.8.4
       strip-ansi: 7.1.0
-    optional: true
 
   '@wdio/protocols@8.20.4': {}
 
@@ -6728,7 +6727,7 @@ snapshots:
 
   edgedriver@5.6.0:
     dependencies:
-      '@wdio/logger': 8.28.0
+      '@wdio/logger': 8.38.0
       '@zip.js/zip.js': 2.7.45
       decamelize: 6.0.0
       edge-paths: 3.0.5
@@ -7131,7 +7130,7 @@ snapshots:
 
   geckodriver@4.4.1:
     dependencies:
-      '@wdio/logger': 8.28.0
+      '@wdio/logger': 8.38.0
       '@zip.js/zip.js': 2.7.45
       decamelize: 6.0.0
       http-proxy-agent: 7.0.2

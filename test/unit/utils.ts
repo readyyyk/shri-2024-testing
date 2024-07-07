@@ -14,11 +14,9 @@ export const LOADING_TEXT = "LOADING";
 export const gotoCatalog = async (container: HTMLElement) => {
   act(() => {
     const link = getByText(container, "Catalog", { selector: "a.nav-link" });
-    // console.log("gotoCatalog 1 ", container.outerHTML);
     link.click();
   });
   await waitForLoad(container);
-  // console.log("gotoCatalog 2 ", container.outerHTML);
 };
 
 export const gotoProduct = async (

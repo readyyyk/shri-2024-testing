@@ -1,7 +1,3 @@
-process.env = Object.assign(process.env, {
-  BUG_ID: "9",
-});
-
 export default {
   sets: {
     desktop: {
